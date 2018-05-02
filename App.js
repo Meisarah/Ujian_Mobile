@@ -1,74 +1,105 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   Text,
   View,
-  Button,
-  TextInput
+  TextInput,
+  Button
 } from 'react-native';
-import { Header, Title, Body,Left,Right, Content, Card, Container } from 'native-base';
-
- 
 
 export default class App extends Component {
-    state = {
-      count: 0,
-      diagnosa:''
-    }
-  
-    temp = 0;
-    tinggi = 0;
-    
-  
-    add(jumlah) {
-      this.setState({ count: this.state.count + jumlah })
-    }
-  
-  diagnosa() {
-      if(this.state.count <18.5){
-         return<Text style={{color:'#000',fontSize:25}}>BB Anda kurang!</Text>;
-      }
-      else if(this.state.count >=18.5 || this.state.count <=24.9){
-        return<Text style={{color:'#000',fontSize:25}}>BB Anda ideal!</Text>;
-      }
-      else if(this.state.count >=25.0 || this.state.count <=29.9){
-        return<Text style={{color:'#000',fontSize:25}}>BB Anda berlebih!</Text>;
-      }
-      else if(this.state.count >=30.0 || this.state.count <=39.9){
-        return<Text style={{color:'#000',fontSize:25}}>BB Anda sangat berlebih!</Text>;
-      }
-      else if(this.state.count > 39.9){
-        return<Text style={{color:'#000',fontSize:25}}>BB Anda obesitas!</Text>;
-          }
-        }
-
-render() {
-
-      return (
-        <View>
-          <Header>
-            <Title>INDEX MASA TUBUH</Title>
-            </Header>
-         
-          
-          <Text>Massa (kg)</Text>
-          <TextInput keyboardType='numeric' onChangeText={input => this.temp = parseInt(input)} />
-         
-          <Text>Tinggi (cm)</Text>
-          <TextInput keyboardType='numeric' onChangeText={input => this.tinggi = parseInt(input)} />
-         
-          <Button title="HITUNG IMT" onPress={() => this.add(parseInt(this.temp)/((Math.pow(this.tinggi,2)/10000))) }/>
-          
-          <Body>
-            <Text style={{color:'#000'}}>Massa Tubuh:</Text>
-            <Text style={{color:'#000',fontSize:25}}>{this.temp} kg</Text>
-            <Text style={{color:'#000'}}>Tinggi Badan:</Text>
-            <Text style={{color:'#000',fontSize:25}}>{this.tinggi/100} m</Text>
-            <Text style={{color:'#000'}}>Indeks Masa Tubuh:</Text>
-            <Text style={{color:'#000',fontSize:25}}>{ this.state.count }</Text>
-            <Text style={{color:'#000'}}>Diagnosa:</Text>
-            {this.diagnosa()}
-          </Body>
-        </View>
-      );
-    }
+  state = {
+    massa: 0,
+    tinggi: 0,
+    hasil: null
   }
+
+  massa = 0
+  tinggi = 0
+
+  hitungIMT(massa, tinggi) {
+    let imt = massa / Math.pow(tinggi, 2)
+    let ket = ''
+    switch (true) {
+      case (imt < 18.5) : ket = 'Berat badan kurang'; break;
+      case (imt < 24.9) : ket = 'Berat badan ideal'; break;
+      case (imt < 29.9) : ket = 'Berat badan berlebih'; break;
+      case (imt < 39.9) : ket = 'Berat badan sangat berlebih'; break;
+      default : ket = 'Obesitas';
+    }
+    return { imt, ket }
+  }
+
+  render() {
+    return (
+      <View style={{ height:'100%', backgroundColor: '#AED8E6' }}>
+        <View style={{ height: 50, backgroundColor: 'blue' }}>
+          <Text style={{
+            fontWeight: 'bold',
+            fontSize: 15,
+            color: 'white',
+            ...marginAuto
+          }}>INDEKS MASSA TUBUH</Text>
+        </View>
+        <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 10 }}>
+          <TextInput style={{ flex: 1 }} onChangeText={(input) => this.massa = input } placeholder='Massa (kg)'/>
+          <TextInput style={{ flex: 1 }} onChangeText={(input) => this.tinggi = input / 100 } placeholder='Tinggi (cm)'/>
+        </View>
+        <View style={{ paddingHorizontal: 10 }}>
+          <Button 
+            onPress={() => {
+              this.setState({
+                massa: this.massa,
+                tinggi: this.tinggi, 
+                hasil: this.hitungIMT(this.massa, this.tinggi) 
+              })
+              console.log(this.massa, this.tinggi)
+            }} 
+            color='blue' title='Hitung IMT'/>
+        </View>
+        {
+          this.state.hasil ? 
+            <View style={{ paddingVertical: 10, alignItems: 'center' }}>
+              <View style={ wrapperContent }>            
+                <Text style={ contentColor }>Massa Tubuh:</Text>
+                <Text style={{ ...contentColor, ...content }}>{ this.state.massa } kg</Text>
+              </View>
+              <View style={ wrapperContent }>                
+                <Text style={ contentColor }>Tinggi Badan:</Text>
+                <Text style={{ ...contentColor, ...content }}>{ this.state.tinggi } m</Text>
+              </View>
+              <View style={ wrapperContent }>
+                <Text style={ contentColor }>Indeks Massa Tubuh:</Text>
+                <Text style={{ ...contentColor, ...content }}>{ this.state.hasil.imt }</Text>
+              </View>
+              <View style={ wrapperContent }>
+                <Text style={ contentColor }>Diagnosa:</Text>
+                <Text style={{ ...contentColor, ...content }}>{ this.state.hasil.ket }</Text>
+              </View>
+            </View>
+          : null
+        }
+      </View>
+    );
+  }
+}
+
+let wrapperContent = {
+  padding: 10, 
+  alignItems: 'center'
+}
+
+let contentColor = {
+  color: 'black'
+}
+
+let content = {
+  fontSize: 20,
+  fontWeight: 'bold'
+}
+
+let marginAuto = {
+  marginRight: 'auto', 
+  marginLeft: 'auto',
+  marginTop: 'auto',
+  marginBottom: 'auto'
+}
